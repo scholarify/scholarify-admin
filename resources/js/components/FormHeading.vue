@@ -25,7 +25,7 @@ defineProps<{
           <div class="space-y-2 text-center flex flex-col gap-4 justify-center items-center">
             <!-- Utilisation correcte du composant SVG -->
             <component v-if="svg_icon" :is="svg_icon" class="w-12 h-12" />
-            <h1 class="text-[36px] dark:text-[#1e3d59] font-bold">{{ title }}</h1>
+            <h1 class="text-[30px] dark:text-[#1e3d59] font-bold">{{ title }}</h1>
             <p class="text-center text-sm text-muted-foreground">{{ description }}</p>
           </div>
         </div>

@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 </script>
 
-<template>
+<template >
     <Primitive :as="as" :as-child="asChild" :class="cn(buttonVariants({ variant, size }), props.class)">
         <slot />
     </Primitive>

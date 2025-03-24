@@ -114,17 +114,7 @@ const closeNotification = () => {
     </div>
 </template>
 <style>
-/* Side Image */
 
-.asideImagse{
-    position: absolute;
-    width: 891.93px;
-    height: 1064.77px;
-    left: 41px;
-    top: 44px;
-    background: linear-gradient(180deg, rgba(30, 212, 170, 0.81) 0%, rgba(44, 88, 133, 0.81) 87.22%), url(landscape-shot-white-textured-background.jpg);
-    border-radius: 77.6494px;
-}
 .asideForm{
     width: 50%;
 }
