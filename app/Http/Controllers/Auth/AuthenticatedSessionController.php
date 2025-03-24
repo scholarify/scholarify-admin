@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,13 +28,39 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+    // public function store(LoginRequest $request): RedirectResponse
+    // {
+    //     //
+    //     $credentials = $request->only('email', 'password');
+    //     // check if the email is verified
+
+    //     $request->authenticate();
+
+    //     $request->session()->regenerate();
+
+    //     return redirect(to:'/admin');
+    // }
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        $credentials = $request->only('email', 'password');
+        $userExists = User::where('email', $credentials['email'])->exists();
 
-        $request->session()->regenerate();
+        if (!$userExists) {
+            return back()->withErrors([
+                'credentials' => "The email or password you entered doesn't match our records. Please double-check and try again.",
+            ]);
+        }
 
-        return redirect()->intended(route('admin', absolute: false));
+        // Attempt to authenticate the user
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            // return redirect()->intended('/admin');
+            return redirect()->intended(route('dashboard'));
+        }
+
+        return back()->withErrors([
+            'credentials' => "The email or password you entered doesn't match our records. Please double-check and try again.",
+        ]);
     }
 
     /**
