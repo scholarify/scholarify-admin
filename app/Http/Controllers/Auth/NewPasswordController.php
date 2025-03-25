@@ -16,6 +16,13 @@ use Inertia\Response;
 
 class NewPasswordController extends Controller
 {
+
+    public function index(Request $request): Response
+    {
+        return Inertia::render('auth/ResetPassword', [
+            'email' => $request->email,
+        ]);
+    }
     /**
      * Show the password reset page.
      */
@@ -25,6 +32,11 @@ class NewPasswordController extends Controller
             'email' => $request->email,
             'token' => $request->route('token'),
         ]);
+    }
+
+    public function success(Request $request): Response
+    {
+        return Inertia::render('auth/PasswordSuccessfullReset');
     }
 
     /**
@@ -66,4 +78,5 @@ class NewPasswordController extends Controller
             'email' => [__($status)],
         ]);
     }
+
 }
