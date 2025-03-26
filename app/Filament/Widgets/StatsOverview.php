@@ -15,7 +15,7 @@ class StatsOverview extends BaseWidget
         return [
             //
             Stat::make('Total Revenue (USD)', '12058')
-                ->icon('heroicon-m-arrow-trending-up')
+                ->icon('heroicon-o-user')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->description('Since Last month')
                 ->chart([7, 2, 10, 3, 15, 4, 17])
