@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\Login;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Middleware\EnsureTokenIsValid;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -28,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('/admin')
-            ->login([AuthenticatedSessionController::class, 'create'])
+            ->login()
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -42,6 +43,7 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
             ])
             ->middleware([
+                'ensure.token',
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,
@@ -51,9 +53,10 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-            ])
-            ->authMiddleware([
-                Authenticate::class,
             ]);
+            // ->authMiddleware([
+            //     // Authenticate::class,
+            //     EnsureTokenIsValid::class,
+            // ]);
     }
 }

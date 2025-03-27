@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
+use GuzzleHttp\Client;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -43,24 +45,43 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $credentials = $request->only('email', 'password');
-        $userExists = User::where('email', $credentials['email'])->exists();
+        $client = new Client();
+        $apiLogin = env('API_LOGIN', 'http://localhost:3000/api/auth/login');
+        // $userExists = User::where('email', $credentials['email'])->exists();
+        try {
+            $response = $client->post($apiLogin, [
+                'json' => [
+                    'email' => $credentials['email'],
+                    'password' => $credentials['password']
+                ]
+            ]);
+            // dd($response);
+            // Decode the response Json
+            $data = json_decode($response->getBody()->getContents(), true);
+            // dd($data);
+            if(isset($data['idToken'])){
+                // Save the idToken in the session
+                Session::put('idToken', $data['idToken']);
+                logger('Token après stockage : ' . Session::get('idToken'));
+                // dd(Session::get('idToken'));
+                $request->session()->regenerate();
+                logger('Token après appress dfs stockage : ' . Session::get('idToken'));
 
-        if (!$userExists) {
+                // redirect to the admin dashboard
+                return redirect(to:'/admin');
+                // return redirect()->intended(route('filament.admin.pages.dashboard'));
+            }
+            return back()->withErrors([
+                'credentials' => "The email or password you entered doesn't match our records. Please double-check and try again.",
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
             return back()->withErrors([
                 'credentials' => "The email or password you entered doesn't match our records. Please double-check and try again.",
             ]);
         }
 
-        // Attempt to authenticate the user
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            // return redirect()->intended('/admin');
-            return redirect()->intended(route('dashboard'));
-        }
 
-        return back()->withErrors([
-            'credentials' => "The email or password you entered doesn't match our records. Please double-check and try again.",
-        ]);
     }
 
     /**
