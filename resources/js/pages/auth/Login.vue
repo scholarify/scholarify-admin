@@ -73,7 +73,7 @@ const closeNotification = () => {
 </script>
 
 <template>
-    <div class="flex">
+    <div class="flex mainContaner">
         <div class="asideLogo w-[50%] h-svh">
             <div class="asideImage">
 
@@ -160,5 +160,17 @@ const closeNotification = () => {
 <style>
 .asideForm {
     width: 50%;
+}
+.mainContaner .asideLogo{
+    display: none;
+}
+@media (min-width: 768px) {
+    .asideForm {
+        width: 50%;
+    }
+    .mainContaner .asideLogo{
+        display: block;
+        width: 50%;
+    }
 }
 </style>
