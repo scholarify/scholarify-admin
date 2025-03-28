@@ -47,7 +47,7 @@ class AuthenticatedSessionController extends Controller
     {
         $credentials = $request->only('email', 'password');
         $client = new Client();
-        $apiLogin = env('API_LOGIN', "http://localhost:3000/api/auth/login");
+        $apiLogin = env('API_LOGIN', "https://scolarify.onrender.com/api/auth/login");
 
         try {
             $response = $client->post($apiLogin, [
@@ -81,10 +81,9 @@ class AuthenticatedSessionController extends Controller
                 } catch (\Exception $e) {
                     logger('Erreur lors de Auth::login : ' . $e->getMessage());
                     return back()->withErrors([
-                        'credentials' => 'Erreur lors de l\'authentification : ' . $e->getMessage(),
+                        'credentials' => "The email or password you entered doesn't match our records. Please double-check and try again.",
                     ]);
                 }
-
                 // Retourner une réponse JSON pour Inertia.js
                 return redirect('/admin');
             } else {
