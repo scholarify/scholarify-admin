@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 
 class School extends Model
 {
     //
+
     protected $connection = 'mongodb';
     protected $collection = 'schools';
 
@@ -59,6 +60,6 @@ class School extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, null, 'school_ids', '_id');
+        return $this->belongsToMany(User::class, null,  'school_id', '_id');
     }
 }

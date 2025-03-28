@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,6 +19,12 @@ class EnsureTokenIsValid
     {
         logger('Contenu de la session : ' . json_encode(Session::all()));
         if (!Session::has('idToken')) {
+            if(Auth::check()) {
+                dd('Auth check');
+                logger('Utilisateur connecté, accès autorisé');
+                return $next($request);
+            }
+            dd(Auth::check());
             logger('Token absent, redirection vers login');
             return redirect()->route('login')->withErrors([
                 'credentials' => 'Login to access this page',

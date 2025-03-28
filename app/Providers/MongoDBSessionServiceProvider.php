@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use MongoDB\Client;
-use Symfony\Component\HttpFoundation\Session\Storage\Handler\MongoDbSessionHandler;
+use MongoDB\Client as MongoDBClient;
+use App\Session\CustomMongoDbSessionHandler;
 
 class MongoDBSessionServiceProvider extends ServiceProvider
 {
@@ -14,18 +14,21 @@ class MongoDBSessionServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app['session']->extend('mongodb', function ($app) {
+            logger('MongoDBSessionServiceProvider: Initialisation du driver de session mongodb');
+
             // Récupérer les paramètres de connexion depuis la configuration
             $connection = $app['config']['session.connection'] ?? 'mongodb';
             $table = $app['config']['session.table'] ?? 'sessions';
 
             // Récupérer les paramètres de la connexion MongoDB depuis config/database.php
             $mongoConfig = $app['config']['database.connections'][$connection];
+            logger('MongoDB Config: ' . json_encode($mongoConfig));
 
             // Construire l'URI de connexion pour MongoDB\Client
             $uri = $mongoConfig['dsn'] ?? sprintf(
                 'mongodb://%s:%s@%s:%s/%s',
-                $mongoConfig['username'],
-                $mongoConfig['password'],
+                $mongoConfig['username'] ?? '',
+                $mongoConfig['password'] ?? '',
                 $mongoConfig['host'],
                 $mongoConfig['port'],
                 $mongoConfig['database']
@@ -37,16 +40,27 @@ class MongoDBSessionServiceProvider extends ServiceProvider
                 $uri .= '?' . http_build_query($uriOptions);
             }
 
+            logger('MongoDB URI: ' . $uri);
+
             // Créer une instance de MongoDB\Client
-            $mongoClient = new Client($uri);
-            // Définir les options pour MongoDbSessionHandler
+            try {
+                $mongoClient = new MongoDBClient($uri);
+                logger('MongoDB Client créé avec succès');
+            } catch (\Exception $e) {
+                logger('Erreur lors de la création de MongoDB Client: ' . $e->getMessage());
+                throw $e;
+            }
+
+            // Définir les options pour CustomMongoDbSessionHandler
             $options = [
-                'database' => $mongoConfig['database'], // Nom de la base de données (par exemple, 'Scolarify')
-                'collection' => $table, // Nom de la collection (par exemple, 'sessions')
+                'database' => $mongoConfig['database'],
+                'collection' => $table,
             ];
 
-            // Retourner le handler de session
-            return new MongoDbSessionHandler($mongoClient, $options);
+            logger('Session Handler Options: ' . json_encode($options));
+
+            // Utiliser la classe personnalisée
+            return new CustomMongoDbSessionHandler($mongoClient, $options);
         });
     }
 
