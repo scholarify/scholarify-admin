@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Filament\Models\Contracts\FilamentUser;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -72,9 +73,9 @@ class User extends Authenticatable
         return Str::uuid()->toString();
     }
 
-    public function canAccessFilament(): bool
+    public function canAccessPanel(Panel $panel): bool
     {
-        // return $this->role === 'admin';
+        // return str_ends_with($this->email, '@yourdomain.com') && $this->hasVerifiedEmail();
         return true;
     }
 }
