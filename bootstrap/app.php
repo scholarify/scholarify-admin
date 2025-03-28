@@ -12,22 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
-        // health: '/up',
-        health: '/status',
+        health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->encryptCookies(except: ['appearance']);
-<<<<<<< HEAD
         $middleware->trustProxies(
             "*"
         );
-=======
-
-        $middleware->trustProxies(
-            at:'*'
-            );
-
->>>>>>> 266fcf9 (wip)
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,
