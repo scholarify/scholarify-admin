@@ -94,7 +94,7 @@ class AuthenticatedSessionController extends Controller
         } catch (\Throwable $th) {
             logger('Erreur lors de l\'appel API : ' . $th->getMessage());
             return back()->withErrors([
-                'credentials' => "Error: An error occurred while trying to log in. Please try again later.",
+                'credentials' => "The email or password you entered doesn't match our records. Please double-check and try again.",
             ]);
         }
     }
