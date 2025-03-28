@@ -16,7 +16,7 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
     // return redirect('/admin');
 })->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/test-mongodb', function () {
+Route::get('/test-session', function () {
     try {
         // $users = DB::connection('mongodb')->table('users')->get();
         // return response()->json($users);

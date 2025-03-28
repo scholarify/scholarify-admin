@@ -16,6 +16,7 @@ class EnsureTokenIsValid
      */
     public function handle(Request $request, Closure $next): Response
     {
+        logger('Contenu de la session : ' . json_encode(Session::all()));
         if (!Session::has('idToken')) {
             logger('Token absent, redirection vers login');
             return redirect()->route('login')->withErrors([
