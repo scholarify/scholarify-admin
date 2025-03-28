@@ -29,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('/admin')
-            ->login(null)
+            ->login([AuthenticatedSessionController::class, 'create'])
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -43,7 +43,7 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
             ])
             ->middleware([
-                'ensure.token',
+                // 'ensure.token',
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
                 StartSession::class,

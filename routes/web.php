@@ -13,8 +13,8 @@ Route::get('/', function () {
     return redirect('/admin');
 })->name('home');
 Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-    // return redirect('/admin');
+    // return Inertia::render('Dashboard');
+    return redirect('/admin');
 })->middleware(['auth', 'verified'])->name('dashboard');
 Route::get('/test-session', function () {
     try {

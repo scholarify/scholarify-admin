@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -46,7 +47,9 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'school_ids' => 'array',
+        // 'school_ids' => 'array',
+        'createdAt' => 'datetime',
+        'updatedAt' => 'datetime',
     ];
 
     public function schools()
@@ -62,6 +65,11 @@ class User extends Authenticatable
     public function subjects()
     {
         return $this->hasMany(Subject::class, 'teacher_id', '_id');
+    }
+
+    static public function generateId(): string
+    {
+        return Str::uuid()->toString();
     }
 
     public function canAccessFilament(): bool

@@ -42,18 +42,15 @@ class AuthenticatedSessionController extends Controller
 
     //     return redirect(to:'/admin');
     // }
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
 
+    public function store(LoginRequest $request)
+    {
+        $credentials = $request->only('email', 'password');
         $client = new Client();
-        $url = env('API_LOGIN', 'https://scolarify.onrender.com/api/auth/login');
+        $apiLogin = env('API_LOGIN', "http://localhost:3000/api/auth/login");
 
         try {
-            $response = $client->post($url, [
+            $response = $client->post($apiLogin, [
                 'json' => [
                     'email' => $request->email,
                     'password' => $request->password,
@@ -62,63 +59,43 @@ class AuthenticatedSessionController extends Controller
 
             $data = json_decode($response->getBody()->getContents(), true);
 
-            if (isset($data['token'])) {
+            if (isset($data['idToken'])) {
                 // Stocker le token dans la session avec la clé 'idToken'
-                Session::put('idToken', $data['token']);
+                Session::put('idToken', $data['idToken']);
+                Session::save();
                 logger('Token après stockage : ' . Session::get('idToken'));
 
                 $user = User::where('email', $request->email)->first();
-                Auth::login($user);
+                if (!$user) {
+                    logger('Utilisateur non trouvé pour l\'email : ' . $request->email);
+                    return back()->withErrors([
+                        'credentials' => 'Utilisateur non trouvé.',
+                    ]);
+                }
 
-                logger('Utilisateur authentifié : ' . Auth::id());
+                logger('Utilisateur trouvé : ' . json_encode($user->toArray()));
 
-                return redirect(to: '/admin');
+                try {
+                    Auth::login($user);
+                    logger('Utilisateur authentifié : ' . Auth::id());
+                } catch (\Exception $e) {
+                    logger('Erreur lors de Auth::login : ' . $e->getMessage());
+                    return back()->withErrors([
+                        'credentials' => 'Erreur lors de l\'authentification : ' . $e->getMessage(),
+                    ]);
+                }
 
+                // Retourner une réponse JSON pour Inertia.js
+                return redirect('/admin');
             } else {
                 return back()->withErrors([
                     'credentials' => "The email or password you entered doesn't match our records. Please double-check and try again.",
                 ]);
             }
-        } catch (\Exception $e) {
-            return back()->withErrors([
-                'credentials' => "The email or password you entered doesn't match our records. Please double-check and try again.",
-            ]);
-        }
-    }
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        $credentials = $request->only('email', 'password');
-        $client = new Client();
-        $apiLogin = env('API_LOGIN', "https://scolarify.onrender.com/api/auth/login");
-        // $userExists = User::where('email', $credentials['email'])->exists();
-        try {
-            $response = $client->post($apiLogin, [
-                'json' => [
-                    'email' => $credentials['email'],
-                    'password' => $credentials['password']
-                ]
-            ]);
-            // Decode the response Json
-            $data = json_decode($response->getBody()->getContents(), true);
-            // dd($data);
-            if (isset($data['idToken'])) {
-                // Save the idToken in the session
-                $request->session()->put('idToken', $data['idToken']);
-                // Session::put('idToken', $data['idToken']);
-                logger('Token après stockage : ' . Session::get('idToken'));
-
-                // redirect to the admin dashboard
-                return redirect(to: '/admin');
-                // return redirect()->intended(route('filament.admin.pages.dashboard'));
-            }
-            return back()->withErrors([
-                'credentials' => "The email or password you entered doesn't match our records. Please double-check and try again.",
-            ]);
         } catch (\Throwable $th) {
-            //throw $th;
+            logger('Erreur lors de l\'appel API : ' . $th->getMessage());
             return back()->withErrors([
-                // 'credentials' => "The email or password you entered doesn't match our records. Please double-check and try again.",
-                'credentials' => "Error: " . $th->getMessage(),
+                'credentials' => "Error: An error occurred while trying to log in. Please try again later.",
             ]);
         }
     }

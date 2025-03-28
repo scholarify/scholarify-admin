@@ -12,6 +12,7 @@ import { ref } from 'vue';
 import FormHeading from '@/components/FormHeading.vue';
 import LoginLogoIcon from '@/components/ui/logos/LoginLogoIcon.vue';
 import AppLogoComponent from '@/components/AppLogoComponent.vue';
+import { set } from '@vueuse/core';
 
 defineProps<{
     status?: string;
@@ -27,6 +28,12 @@ const form = useForm({
 
 const notificationVisible = ref(false);
 
+interface LoginResponse {
+    success: boolean;
+    token: string;
+    redirect: string;
+}
+
 const submit = () => {
 
     form.post(route('login'), {
@@ -35,15 +42,28 @@ const submit = () => {
 
         },
         onError: (errors) => {
-            console.log(errors);
             if (errors.credentials) {
                 form.errors.credentialsError = errors.credentials;
+                console.log(errors.credentials, 'form errors');
                 notificationVisible.value = true;
+                setTimeout(() => {
+                    notificationVisible.value = false;
+                }, 5000);
             }
         },
-        onSuccess: () => {
-            notificationVisible.value = false;
-            window.location.reload();
+        onSuccess: (response) => {
+            // Gérer la réponse JSON
+            const data = response?.props?.data as LoginResponse; // Inertia passe les données dans props.data
+            if (data?.success) {
+                // Stocker le token dans localStorage
+                localStorage.setItem('idToken', data.token);
+                // Rediriger vers /admin
+                window.location.href = data.redirect;
+                notificationVisible.value = false;
+            } else {
+                form.errors.credentialsError = "Erreur lors de la connexion.";
+                notificationVisible.value = true;
+            }
         }
     });
 };
