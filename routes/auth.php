@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordDigitController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
@@ -27,11 +28,24 @@ Route::middleware('guest')->group(function () {
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
         ->name('password.email');
 
+    // password reset digit
+    Route::get('reset-password-digit', [PasswordDigitController::class, 'create'])
+        ->name('password.digit.request');
+
+    Route::post('reset-password-digit', [PasswordDigitController::class, 'store'])
+        ->name('password.digits');
+    // New password
+    Route::get('reset-password', [NewPasswordController::class, 'index'])
+        ->name('password.index');
+
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
+    ->name('password.reset');
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+    Route::post('success-reset-password', [NewPasswordController::class, 'success'])
+    ->name('password.success');
 });
 
 Route::middleware('auth')->group(function () {

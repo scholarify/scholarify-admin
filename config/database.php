@@ -41,6 +41,11 @@ return [
             'journal_mode' => null,
             'synchronous' => null,
         ],
+        'sqlite_queue' => [
+            'driver' => 'sqlite',
+            'database' => database_path('queue.sqlite'),
+            'prefix' => '',
+        ],
 
         'mysql' => [
             'driver' => 'mysql',
@@ -112,6 +117,35 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', 27017),
+            'database' => env('DB_DATABASE', 'scholarify'),
+            'username' => env('DB_USERNAME', ''),
+            'password' => env('DB_PASSWORD', ''),
+            'options' => [
+                'database' => env('DB_AUTHENTICATION_DATABASE', 'admin'),
+                'retryWrites' => true,
+                'w' => 'majority',
+                'appName' => 'Cluster0',
+            ],
+            'dsn' => env('DB_HOST') ? 'mongodb+srv://' . env('DB_USERNAME') . ':' . env('DB_PASSWORD') . '@' . env('DB_HOST') . '/' . env('DB_DATABASE') : null,
+        ],
+
+        'database' => [
+            'driver' => 'database',
+            'connection' => 'sqlite_queue',
+            'table' => 'jobs',
+            'queue' => 'default',
+            'retry_after' => 90,
+        ],
+
+        // 'mongodb' => [
+        //     'driver' => 'mongodb',
+        //     'dsn' => env('MONGODB_URI', 'mongodb://localhost:27017'),
+        //     'database' => env('MONGODB_DATABASE', 'laravel_app'),
+        // ],
     ],
 
     /*

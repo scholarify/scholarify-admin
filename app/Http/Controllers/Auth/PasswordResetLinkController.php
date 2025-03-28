@@ -21,6 +21,8 @@ class PasswordResetLinkController extends Controller
         ]);
     }
 
+
+
     /**
      * Handle an incoming password reset link request.
      *
@@ -35,7 +37,7 @@ class PasswordResetLinkController extends Controller
         Password::sendResetLink(
             $request->only('email')
         );
-
-        return back()->with('status', __('A reset link will be sent if the account exists.'));
+        return redirect()->intended(route('password.digit.request'));
+        // return back()->with('status', __('A reset link will be sent if the account exists.'));
     }
 }
